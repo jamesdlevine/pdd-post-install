@@ -54,6 +54,15 @@ Anthropic,anthropic/claude-sonnet-4-20250514,3.0,15.0,1356,,ANTHROPIC_API_KEY,64
 Anthropic,anthropic/claude-opus-4-1-20250805,3.0,15.0,1474,,ANTHROPIC_API_KEY,32000,True,budget
 Anthropic,anthropic/claude-3-5-haiku-20241022,3.0,15.0,1133,,ANTHROPIC_API_KEY,8192,True,budget"""
 
+_CSV_LINES_CACHE = None
+
+def get_csv_lines() -> List[str]:
+    """Get cached CSV lines, parsing only once"""
+    global _CSV_LINES_CACHE
+    if _CSV_LINES_CACHE is None:
+        _CSV_LINES_CACHE = LLM_MODEL_CSV_TEMPLATE.strip().split('\n')
+    return list(_CSV_LINES_CACHE)
+
 def print_colored(text: str, color: str = WHITE, bold: bool = False) -> None:
     """Print colored text to console"""
     style = BOLD + color if bold else color
@@ -90,7 +99,7 @@ def print_pdd_logo():
 
 def get_csv_variable_names() -> Dict[str, str]:
     """Parse CSV template to get the actual variable names used"""
-    csv_lines = LLM_MODEL_CSV_TEMPLATE.strip().split('\n')
+    csv_lines = get_csv_lines()
     variable_names = {}
     
     for line in csv_lines[1:]:  # Skip header
@@ -124,12 +133,16 @@ def discover_api_keys() -> Dict[str, Optional[str]]:
 
 def test_openai_key(api_key: str) -> bool:
     """Test OpenAI API key validity"""
-    if not api_key or not api_key.strip():
+    if not api_key:
+        return False
+    
+    api_key = api_key.strip()
+    if not api_key:
         return False
     
     try:
         headers = {
-            'Authorization': f'Bearer {api_key.strip()}',
+            'Authorization': f'Bearer {api_key}',
             'Content-Type': 'application/json'
         }
         response = requests.get(
@@ -143,12 +156,16 @@ def test_openai_key(api_key: str) -> bool:
 
 def test_google_key(api_key: str) -> bool:
     """Test Google Gemini API key validity"""
-    if not api_key or not api_key.strip():
+    if not api_key:
+        return False
+    
+    api_key = api_key.strip()
+    if not api_key:
         return False
     
     try:
         response = requests.get(
-            f'https://generativelanguage.googleapis.com/v1beta/models?key={api_key.strip()}',
+            f'https://generativelanguage.googleapis.com/v1beta/models?key={api_key}',
             timeout=10
         )
         return response.status_code == 200
@@ -157,12 +174,16 @@ def test_google_key(api_key: str) -> bool:
 
 def test_anthropic_key(api_key: str) -> bool:
     """Test Anthropic API key validity"""
-    if not api_key or not api_key.strip():
+    if not api_key:
+        return False
+    
+    api_key = api_key.strip()
+    if not api_key:
         return False
     
     try:
         headers = {
-            'x-api-key': api_key.strip(),
+            'x-api-key': api_key,
             'Content-Type': 'application/json'
         }
         response = requests.get(
@@ -319,7 +340,7 @@ def save_configuration(valid_keys: Dict[str, str]) -> Tuple[List[str], bool, Opt
     saved_files.append(str(api_env_file))
     
     # Create llm_model.csv with only valid providers
-    csv_lines = LLM_MODEL_CSV_TEMPLATE.strip().split('\n')
+    csv_lines = get_csv_lines()
     header = csv_lines[0]
     valid_lines = [header]
     
