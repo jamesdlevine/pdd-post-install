@@ -23,5 +23,5 @@ _pdd-setup.py_ will be integrated into the pdd-cli distribution in the near futu
 
 ## More info:
 #### [PromptDriven.ai](https://PromptDriven.ai)
-#### [PDD on GitHub](github.com/promptdriven/pdd)
+#### [PDD on GitHub](https://github.com/promptdriven/pdd)
 #### [PDD on pypi](https://pypi.org/project/pdd-cli/)
