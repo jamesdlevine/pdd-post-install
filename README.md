@@ -15,6 +15,9 @@ Then:
    python pdd-setup.py   (from this repo)
 ```
 
+
+_pdd-setup.py_ has one external dependency on the _requests_ module, which is installed along with _pdd-cli_
+
 _pdd-setup.py_ will be integrated into the pdd-cli distribution in the near future.
 
 
